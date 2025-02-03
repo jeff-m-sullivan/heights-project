@@ -3,23 +3,48 @@ title: "Build Height Database"
 format: html
 ---
 
-## Quarto
+## National Health and Nutrition Examination Survey
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+The NHANES (<https://www.cdc.gov/nchs/nhanes/index.html>) is a nationally
+representative survey of the United Sates recording information about health,
+nutrition, and risk factors.
 
-## Running Code
+## Finding the data
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Since the NHANES is a large survey covering many years, we need to search
+through the components to find what we want.
+
+The demographics component has standard information about all respondents
+and each respondent is uniquely identified by the sequence number variable SEQN.
+The data codebook is available at <https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/DEMO_L.htm>
+
+The body measures component has height, weight, BMI, etc. and is linkable
+to the demographics via the sequence number. The data codebook is available at
+<https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/BMX_L.htm>
+
+To get a proper nationally representative sample, you'll need to use the survey
+weights to conduct the analysis. The process is detailed at
+<https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/overviewbrief.aspx?Cycle=2021-2023>
+
+## Load the data
+
+I've selected the relevant variables for this analysis.
 
 ```{r}
-1 + 1
+library(haven)
+library(tidyverse)
+library(writexl)
+demographics <- read_xpt("data/DEMO_L.xpt", NULL) %>%
+  select(SEQN, RIDAGEYR, RIAGENDR, RIDRETH1, RIDRETH3, WTINT2YR, WTMEC2YR)
+body_measures <- read_xpt("data/BMX_L.xpt", NULL) %>% select(SEQN, BMXHT)
 ```
 
-You can add options to executable code like this 
+## Create the dataset
+
+Merging both components and saving to a spreadsheet.
 
 ```{r}
-#| echo: false
-2 * 2
+population_data <- demographics %>%
+  inner_join(body_measures, by = "SEQN") %>%
+  write_xlsx(path = "analytic.xlsx")
 ```
-
-The `echo: false` option disables the printing of code (only output is displayed).
