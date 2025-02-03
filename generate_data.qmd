@@ -48,3 +48,17 @@ population_data <- demographics %>%
   inner_join(body_measures, by = "SEQN") %>%
   write_xlsx(path = "analytic.xlsx")
 ```
+
+## Generate the friends data
+
+We will just generate the friends data by hand.
+
+```{r}
+friends <- tibble(
+  name = c("Lilly", "Selena", "Fenix", "Maddie", "Silas"),
+  gender = c("female", "female", NA, "female", "male"),
+  height_feet = c(5, 5, 6, 5, 6),
+  height_inches = c(1, 4, 0, 9, 4)
+) %>%
+  write_xlsx(path = "friends.xlsx")
+```
